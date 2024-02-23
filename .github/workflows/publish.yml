@@ -1,0 +1,36 @@
+# Publish a release to PyPI
+# Requires build package workflow to run first
+# This version releases to https://pypi.org/, only trigger if the release has been thorough tested
+
+# !TOD: Work in progress
+
+name: Publish a release to PyPI
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Select release to publish"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi-publish
+      url: https://pypi.org/p/medpy
+    permissions:
+      id-token: write # IMPORTANT: mandatory for trusted publishing
+    steps:
+      - name: Download dists
+        uses: actions/download-artifact@v3
+        with:
+          name: python-package-distributions-${{ github.ref_name }}
+          path: dist/
+      - name: Publish package
+        uses: pypa/gh-action-pypi-publish@v1.8.11
